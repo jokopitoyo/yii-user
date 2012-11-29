@@ -218,6 +218,15 @@ class User extends CActiveRecord
 		}
 	}
 	
+	public static function getNewActivationKey()
+	{
+		$chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		$key="";
+		for($i=0;$i<28;$i++) 
+			$key.= $chars[mt_rand(0,61)];
+		return $key;
+	}
+	
 	public static function blowfishSalt($cost = 10) 
 	{
 		//validate $cost

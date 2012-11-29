@@ -42,7 +42,7 @@ class RegistrationController extends Controller
 					$model->salt = User::getNewSalt();
 					
 					$sourcePassword = $model->password;
-					$model->activkey=UserModule::encrypting(microtime().$model->password);
+					$model->activkey=User::getNewActivationKey();
 					$model->password=UserModule::encrypting($model->password, $model->salt);
 					$model->verifyPassword=UserModule::encrypting($model->verifyPassword, $model->salt);
 					$model->superuser=0;
