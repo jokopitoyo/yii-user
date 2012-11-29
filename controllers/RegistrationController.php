@@ -42,7 +42,7 @@ class RegistrationController extends Controller
 					$model->salt = User::getNewSalt();
 					
 					$sourcePassword = $model->password;
-					$model->activkey=UserModule::encrypting(microtime().$model->password);
+					$model->activkey=User::getNewActivationKey();
 					$model->password=UserModule::encrypting($model->password, $model->salt);
 					$model->verifyPassword=UserModule::encrypting($model->verifyPassword, $model->salt);
 					$model->superuser=0;
@@ -57,10 +57,10 @@ class RegistrationController extends Controller
 						}
 						
 						if ((Yii::app()->controller->module->loginNotActiv||(Yii::app()->controller->module->activeAfterRegister&&Yii::app()->controller->module->sendActivationMail==false))&&Yii::app()->controller->module->autoLogin) {
-								$identity=new UserIdentity($model->username,$sourcePassword);
-								$identity->authenticate();
-								Yii::app()->user->login($identity,0);
-								$this->redirect(Yii::app()->controller->module->returnUrl);
+							$identity=new UserIdentity($model->username,$sourcePassword);
+							$identity->authenticate();
+							Yii::app()->user->login($identity,0);
+							$this->redirect(Yii::app()->controller->module->returnUrl);
 						} else {
 							if (!Yii::app()->controller->module->activeAfterRegister&&!Yii::app()->controller->module->sendActivationMail) {
 								Yii::app()->user->setFlash('registration',UserModule::t("Thank you for your registration. Contact Admin to activate your account."));
