@@ -160,14 +160,14 @@ class UserModule extends CWebModule
 	/**
 	 * @return hash string.
 	 */
-	public static function encrypting($string="") {
+	public static function encrypting($string="", $salt="") {
 		$hash = Yii::app()->getModule('user')->hash;
 		if ($hash=="md5")
-			return md5($string);
+			return md5($string.$salt);
 		if ($hash=="sha1")
-			return sha1($string);
+			return sha1($string.$salt);
 		else
-			return hash($hash,$string);
+			return hash($hash,$string.$salt);
 	}
 	
 	/**
@@ -216,7 +216,7 @@ class UserModule extends CWebModule
 	}
 	
 	/**
-	 * Send mail method
+	 * Send to user mail
 	 */
 	public static function sendMail($email,$subject,$message) {
     	$adminEmail = Yii::app()->params['adminEmail'];
@@ -225,6 +225,16 @@ class UserModule extends CWebModule
 	    $message = str_replace("\n.", "\n..", $message);
 	    return mail($email,'=?UTF-8?B?'.base64_encode($subject).'?=',$message,$headers);
 	}
+
+    /**
+     * Send to user mail
+     */
+    public function sendMailToUser($user_id,$subject,$message,$from='') {
+        $user = User::model()->findbyPk($user_id);
+        if (!$from) $from = Yii::app()->params['adminEmail'];
+        $headers="From: ".$from."\r\nReply-To: ".Yii::app()->params['adminEmail'];
+        return mail($user->email,'=?UTF-8?B?'.base64_encode($subject).'?=',$message,$headers);
+    }
 	
 	/**
 	 * Return safe user data.

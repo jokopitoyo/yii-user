@@ -14,6 +14,7 @@ class User extends CActiveRecord
 	 * @var integer $id
 	 * @var string $username
 	 * @var string $password
+	 * @var string $salt
 	 * @var string $email
 	 * @var string $activkey
 	 * @var integer $createtime
@@ -121,7 +122,7 @@ class User extends CActiveRecord
                 'condition'=>'superuser=1',
             ),
             'notsafe'=>array(
-            	'select' => 'id, username, password, email, activkey, create_at, lastvisit_at, superuser, status',
+            	'select' => 'id, username, password, salt, email, activkey, create_at, lastvisit_at, superuser, status',
             ),
         );
     }
@@ -195,5 +196,23 @@ class User extends CActiveRecord
 
     public function setLastvisit($value) {
         $this->lastvisit_at=date('Y-m-d H:i:s',$value);
+    }
+	
+	/**
+	 * simply returns the md5 digested value of PHP's uniqid() 
+	 * That should be sufficient to make most rainbowtables useless. 
+	 * 
+	 * Modify this function to change the way a salt is generated if you disagree.
+	 */
+	public static function getNewSalt()
+	{
+		return md5(uniqid(mt_rand(), true));
+	}
+
+	public function afterSave() {
+        if (get_class(Yii::app())=='CWebApplication'&&Profile::$regMode==false) {
+            Yii::app()->user->updateSession();
+        }
+        return parent::afterSave();
     }
 }
