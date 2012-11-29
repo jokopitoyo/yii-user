@@ -160,15 +160,25 @@ class UserModule extends CWebModule
 	/**
 	 * @return hash string.
 	 */
-	public static function encrypting($string="", $salt="") {
+	public static function encrypting($string="",$salt="") {
 		$hash = Yii::app()->getModule('user')->hash;
-		if ($hash=="md5")
-			return md5($string.$salt);
-		if ($hash=="sha1")
-			return sha1($string.$salt);
-		else
-			return hash($hash,$string.$salt);
+		
+		switch($hash)
+		{
+			case "md5":
+				return md5($string.$salt);
+			case "sha1":
+				return sha1($string.$salt);
+			case "blowfish":
+				if(!$salt) {
+					$salt = User::blowfishSalt();
+				}
+				return crypt($string,$salt);
+			default:
+				return hash($hash,$string.$salt);
+		}
 	}
+	
 	
 	/**
 	 * @param $place
@@ -246,7 +256,7 @@ class UserModule extends CWebModule
             $id = Yii::app()->user->id;
 		if ($id) {
             if (!isset(self::$_users[$id])||$clearCache)
-                self::$_users[$id] = User::model()->with(array('profile'))->findbyPk($id);
+                self::$_users[$id] = User::model()->with(array('profile'))->findByPk($id);
 			return self::$_users[$id];
         } else return false;
 	}

@@ -47,7 +47,9 @@ class WebUser extends CWebUser
 	}
 
     public function updateSession() {
-        $user = Yii::app()->getModule('user')->user($this->id);
+		$user = Yii::app()->getModule('user')->user($this->id);
+		if(!$user)
+			return;
         $this->name = $user->username;
         $userAttributes = CMap::mergeArray(array(
                                                 'email'=>$user->email,
