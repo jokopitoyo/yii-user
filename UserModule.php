@@ -171,13 +171,11 @@ class UserModule extends CWebModule
 				return sha1($string.$salt);
 			case "blowfish":
 				if(!$salt) {
-					Yii::import('user.extensions.Randomness.Randomness');
-					$salt = Randomness::blowfishSalt();
+					$salt = User::blowfishSalt();
 				}
 				return crypt($string,$salt);
 			default:
 				return hash($hash,$string.$salt);
-				
 		}
 	}
 	
@@ -258,7 +256,7 @@ class UserModule extends CWebModule
             $id = Yii::app()->user->id;
 		if ($id) {
             if (!isset(self::$_users[$id])||$clearCache)
-                self::$_users[$id] = User::model()->with(array('profile'))->findbyPk($id);
+                self::$_users[$id] = User::model()->with(array('profile'))->findByPk($id);
 			return self::$_users[$id];
         } else return false;
 	}

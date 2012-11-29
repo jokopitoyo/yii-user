@@ -210,13 +210,31 @@ class User extends CActiveRecord
 		switch($hash)
 		{
 			case "blowfish":
-				Yii::import('user.extensions.Randomness.Randomness');
-				$salt = Randomness::blowfishSalt();
+				return self::blowfishSalt();
 				break;
 			default:
 				return md5(uniqid(mt_rand(), true));
 				break;
 		}
+	}
+	
+	public static function blowfishSalt($cost = 10) 
+	{
+		//validate $cost
+		$cost = (int)$cost;
+		if($cost < 4 || $cost > 31)
+			throw new Exception("Invalid cost. Should be in range of 4-31. See comment on CRYPT_BLOWFISH on http://php.net/manual/en/function.crypt.php");
+		
+		//fix potential high-bit attack security weakness in blowfish implementation (available since PHP version 5.3.7, see: http://www.php.net/security/crypt_blowfish.php)
+		$prefix = (version_compare(PHP_VERSION, '5.3.7') >= 0)? '$2y$' : '$2a$'; 
+		
+		//create a 22 digit random string from the alphabet: ./0-9A-Za-z
+		$chars='./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		$salt="";
+		for($i=0;$i<22;$i++) 
+			$salt .= $chars[mt_rand(0,63)];
+		
+		return sprintf("%s%02d$" , $prefix, $cost) . $salt;
 	}
 
 	public function afterSave() {
